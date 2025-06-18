@@ -1,0 +1,41 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+.venv/
+.env/
+.python-version
+
+# VS Code / PyCharm / IDE files
+.vscode/
+.idea/
+
+# macOS / Linux system files
+.DS_Store
+Thumbs.db
+
+# Log / debug / cache files
+*.log
+*.tmp
+*.bak
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# dotenv / secrets
+.env
+
+# OS-generated files
+ehthumbs.db
+Desktop.ini
+
+# Project-specific ignore
+# (add files or dirs below if they shouldn't be tracked)
+# e.g. audio outputs, temp results, etc.
+# audio_output/
+# debug_results/
+

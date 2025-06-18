@@ -1,0 +1,11 @@
+[] Context Handling	Overlap, context windows, boundary revision	Implement/Highlight
+
+[] Security	Secure enclave, full encryption, audit logs	Add/Emphasize
+
+[] Privacy	No raw data stored, sound shredding if needed	Implement
+
+[] Usability	Web UI, clear JSON, downloadable transcript	Add/Highlight
+
+[] Documentation	README, API docs, architecture diagram	Add
+
+[] Testing	Unit/integration tests, security audit scripts	Add

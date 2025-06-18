@@ -1,0 +1,112 @@
+        1. Directory & Module Layout
+           • requirements.txt
+             – fastapi, uvicorn, librosa, soundfile, python-multipart, aiofiles
+             – torch, torchaudio, transformers, pyannote.audio, panns-inference, whisper,
+    pandas, numpy
+           • app/
+             – __init__.py           ← Python package marker
+             – config.py             ← Application settings (upload dir, chunk sizes, worker
+    count)
+             – models.py             ← Pydantic schemas (ChunkMetadata, AnalysisResponse)
+             – utils.py              ← Preprocessing & cleanup utilities
+             – main.py               ← FastAPI app & `/analyze` endpoint
+             – processors/           ← One file per analysis module: ambience.py,
+    diarization.py, ai_voice.py, emotion.py, transcription.py, scam_analysis.py
+        2. Configuration (app/config.py)
+           • UPLOAD_DIR – where raw uploads land (default “uploads/”)
+           • CHUNK_DURATION_SECONDS – length of each audio chunk (default 30s)
+           • CHUNK_OVERLAP_SECONDS – overlap between adjacent chunks (default 5s)
+           • MAX_WORKERS – ThreadPoolExecutor’s pool size (defaults to CPU count)
+        3. Data Models (app/models.py)
+           • ChunkMetadata(index, start_time, end_time) – describes each batch chunk
+           • AnalysisResponse – top-level JSON with fields:
+             – ambience (office sounds), diarization (speaker segments), ai_voice (fake-voice
+    score), emotion (emotion probs), transcription (Whisper output), scam_analysis (LLM
+    result), chunks (metadata list)
+        4. Preprocessing & Cleanup (app/utils.py)
+           • split_audio_into_chunks() – compute overlapping [start,end] windows across the
+    whole file
+           • load_audio_chunk() – read samples for a given time range (used if you ever need
+    chunk-level inference)
+           • secure_delete() – zero-overwrites then unlinks a temp file
+        5. Analysis Modules (app/processors/)
+           a. Office Ambience → `ambience.process`
+              • Wraps background_noise.OfficeAmbienceDetector (PANNs audio-tagging)
+              • Returns tags like “Typing”, “Printer” with a composite confidence score
+           b. Speaker Diarization → `diarization.process`
+              • Loads `pyannote/speaker-diarization-3.1` pipeline (GPU if available)
+              • Yields a list of {speaker, start, end, duration} segments
+           c. AI Voice Detection → `ai_voice.process`
+              • Uses your `inference.Extractor` with DAMO personal model
+              • Outputs `{is_ai_voice: bool, ai_score: float}`
+           d. Emotion Detection → `emotion.process`
+              • Uses HuggingFace’s `ehcalabres/wav2vec2-lg-xlsr-en-speech-emotion-recognition`
+
+              • Returns a list (one element) with top_emotion label and full probability dict
+           e. Transcription → `transcription.process`
+              • Runs OpenAI Whisper (“medium”) locally
+              • Returns `{transcript: str, segments: [ {start,end,text}, … ]}`
+           f. Scam Analysis → `scam_analysis.process`
+              • Builds a strict JSON-only prompt (from your vishkill_basic logic)
+              • Shells out to `ollama run hermes3:8b` LLM
+              • Parses returned JSON into `{is_scam, confidence, red_flags, target, analysis}`
+
+        6. `/analyze` Endpoint (app/main.py)
+
+
+            1. POST /analyze with a file (must be .wav/.mp3/.flac/.m4a/.ogg)
+
+            2. Write to temp (`orig_path`), load via `librosa.load(orig_path, sr=16000,
+    mono=True)`
+
+            3. Write standardized mono-16k WAV to `wav_path` (soundfile)
+
+            4. Compute duration & call `split_audio_into_chunks()` → metadata list
+
+            5. Call `transcription.process(wav_path, metadata)` first (needed for scam module)
+
+
+            6. Spawn a ThreadPoolExecutor (max_workers=CPU) and in parallel:
+                    • ambience.process(wav_path)
+                    • diarization.process(wav_path, metadata)
+                    • ai_voice.process(wav_path, metadata)
+                    • emotion.process(wav_path, metadata)
+                    • scam_analysis.process(transcription_result)
+
+            7. Wait for all futures, collect their results
+
+            8. Schedule `secure_delete(orig_path)` and `secure_delete(wav_path)` via FastAPI
+    BackgroundTasks
+
+            9. Return an `AnalysisResponse` containing every module’s output plus chunk
+    metadata
+        7. Security & Privacy Considerations
+           • Strict file-type checking to prevent arbitrary uploads
+           • All temp files are zero-overwritten then deleted (secure_delete)
+           • No raw transcripts or audio stored beyond response; background tasks wipe temps
+           • Logging only includes metadata (durations, chunk counts)—never transcripts or
+    audio content
+           • In-transit TLS assumed via HTTPS; at-rest AES-256 encryption can be layered on the
+     `uploads/` store
+           • RBAC or token auth can be inserted as FastAPI dependencies on the `/analyze` route
+
+           • Model loading occurs locally—no cloud API calls except your LLM container
+    (`ollama`)
+           • Dependencies pinned in requirements.txt for reproducibility & auditability
+        8. Running the Service
+
+
+            1. Install dependencies:
+                   `pip install -r requirements.txt`
+
+            2. Launch:
+                   `uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload`
+
+            3. POST audio files to `http://<host>:8000/analyze`
+
+            4. Receive a unified JSON report with ambience, diarization, AI-voice, emotion,
+    transcription, scam flags, and chunk metadata
+
+    This end-to-end pipeline preserves context via overlapping chunks, runs each analysis in
+    parallel for speed, aggregates all results into a single structured JSON, and securely
+    cleans up any sensitive artifacts as soon as processing completes.
