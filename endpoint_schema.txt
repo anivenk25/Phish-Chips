@@ -1,0 +1,113 @@
+---
+
+## 📄 **Audio Analysis API Docs**
+
+### Base URL
+
+```
+POST /analyze
+```
+
+### Description
+
+Uploads an audio file for analysis and returns results including transcription, diarization, emotion detection, AI voice detection, ambience classification, and scam analysis.
+
+---
+
+### 📤 **Request**
+
+#### Endpoint
+
+```
+POST /analyze
+```
+
+#### Headers
+
+```
+Content-Type: multipart/form-data
+```
+
+#### Body Parameters
+
+| Name   | Type         | Required | Description                                                                           |
+| ------ | ------------ | -------- | ------------------------------------------------------------------------------------- |
+| `file` | `UploadFile` | ✅ Yes    | The audio file to analyze. Supported formats: `.wav`, `.mp3`, `.flac`, `.m4a`, `.ogg` |
+
+---
+
+### ✅ **Accepted File Formats**
+
+* `.wav`
+* `.mp3`
+* `.flac`
+* `.m4a`
+* `.ogg`
+
+---
+
+### 📥 Example cURL
+
+```bash
+curl -X POST http://<YOUR_SERVER_URL>/analyze \
+  -F "file=@/path/to/audio.wav"
+```
+
+---
+
+### 📦 **Response**
+
+**HTTP 200 OK**
+
+```json
+{
+  "ambience": {...},
+  "diarization": {...},
+  "ai_voice": {...},
+  "emotion": {...},
+  "transcription": {
+    "text": "Transcript of the audio...",
+    "segments": [...]
+  },
+  "scam_analysis": {...},
+  "chunks": [
+    {
+      "start": 0.0,
+      "end": 10.0,
+      "chunk_path": "chunk_0.wav"
+    },
+    ...
+  ]
+}
+```
+
+#### Response Fields
+
+| Field           | Type     | Description                               |
+| --------------- | -------- | ----------------------------------------- |
+| `ambience`      | `object` | Ambient sound analysis results            |
+| `diarization`   | `object` | Speaker diarization data (who spoke when) |
+| `ai_voice`      | `object` | AI-generated voice detection results      |
+| `emotion`       | `object` | Emotion detection across audio chunks     |
+| `transcription` | `object` | Transcribed text and segments             |
+| `scam_analysis` | `object` | Flags suspicious/scam content in audio    |
+| `chunks`        | `list`   | Metadata for each audio chunk processed   |
+
+---
+
+### ❌ Errors
+
+| Status Code | Description                                                |
+| ----------- | ---------------------------------------------------------- |
+| `400`       | Unsupported file type or audio processing failed           |
+| `500`       | Internal server error (e.g., during background processing) |
+
+---
+
+### 🔒 Notes
+
+* Files are deleted from server storage after processing.
+* All processing is done in the background using a `ThreadPoolExecutor`.
+* Sample rate is standardized to 16kHz mono during conversion.
+
+
