@@ -1,0 +1,104 @@
+## ✅ `uv` Setup Guide for This Project
+
+### 📁 Project Structure
+
+```
+your-project/
+├── .venv/                ← local virtual environment (created by uv)
+├── pyproject.toml        ← project dependencies
+├── requirements.txt      ← (optional) pinned packages, for export
+├── *.py                  ← your source code
+├── .gitignore
+└── README.md
+```
+
+---
+
+### 🧪 1. Install `uv` (if not already)
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+Ensure it’s installed:
+
+```bash
+uv --version
+```
+
+---
+
+### 🐍 2. Create the Virtual Environment
+
+```bash
+uv venv
+```
+
+This creates a `.venv/` directory and automatically uses it in future commands.
+
+---
+
+### 📦 3. Install Project Dependencies
+
+If you already have a `pyproject.toml`:
+
+```bash
+uv pip install -r requirements.txt  # optional, sync old reqs
+uv pip install -e .                 # installs the current project in editable mode
+```
+
+Or to add packages (auto-updates `pyproject.toml`):
+
+```bash
+uv pip install fastapi openai httpx
+```
+
+---
+
+### 🧹 4. Ignore `.venv` in Git
+
+Make sure `.venv/` is ignored by `.gitignore` (you already have it):
+
+```bash
+echo ".venv/" >> .gitignore
+```
+
+---
+
+### 📤 5. Export Dependencies (Optional)
+
+To generate a `requirements.txt` (for legacy or cloud compatibility):
+
+```bash
+uv pip freeze > requirements.txt
+```
+
+---
+
+### 🧪 6. Run Your Script
+
+```bash
+uv pip run python your_script.py
+```
+
+Or activate `.venv` directly:
+
+```bash
+source .venv/bin/activate
+python blah.py
+```
+
+---
+
+### ✅ Summary Cheatsheet
+
+| Task                   | Command                            |      |
+| ---------------------- | ---------------------------------- | ---- |
+| Install `uv`           | \`curl ...                         | sh\` |
+| Create venv            | `uv venv`                          |      |
+| Install packages       | `uv pip install fastapi`           |      |
+| Run Python             | `uv pip run python script.py`      |      |
+| Export requirements    | `uv pip freeze > requirements.txt` |      |
+| Add package to project | `uv pip install -e .`              |      |
+
+---
