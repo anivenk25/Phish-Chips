@@ -1,4 +1,6 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException, BackgroundTasks
+from fastapi.responses import HTMLResponse
+from fastapi.middleware.cors import CORSMiddleware
 from concurrent.futures import ThreadPoolExecutor
 import asyncio
 import os
@@ -17,6 +19,61 @@ logger = logging.getLogger("audio_analysis")
 logging.basicConfig(level=logging.INFO)
 
 app = FastAPI(title="Audio Analysis Service")
+# Enable CORS for the web UI
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.get("/", response_class=HTMLResponse)
+def index():
+    html_content = """<!DOCTYPE html>
+<html>
+<head>
+  <title>Audio Analysis Service - MVP</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; }
+    input[type="file"] { margin-bottom: 10px; }
+    pre { background: #f4f4f4; padding: 10px; border-radius: 5px; }
+  </style>
+</head>
+<body>
+  <h1>Audio Analysis Service - MVP</h1>
+  <p>Upload an audio file and receive analysis results.</p>
+  <input type="file" id="fileInput" accept=".wav,.mp3,.flac,.m4a,.ogg"/>
+  <button onclick="upload()">Analyze</button>
+  <h2>Results:</h2>
+  <pre id="results"></pre>
+  <script>
+  async function upload() {
+     const fileInput = document.getElementById('fileInput');
+     if (!fileInput.files.length) {
+        alert('Please select a file.');
+        return;
+     }
+     const file = fileInput.files[0];
+     const formData = new FormData();
+     formData.append('file', file);
+     const res = await fetch('/analyze', {
+        method: 'POST',
+        body: formData
+     });
+     const resultsEl = document.getElementById('results');
+     if (!res.ok) {
+        const err = await res.json();
+        resultsEl.textContent = 'Error: ' + (err.detail || JSON.stringify(err));
+        return;
+     }
+     const data = await res.json();
+     resultsEl.textContent = JSON.stringify(data, null, 2);
+  }
+  </script>
+</body>
+</html>"""
+    return html_content
 
 @app.on_event("startup")
 def startup_event():
