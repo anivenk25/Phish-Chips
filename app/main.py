@@ -42,8 +42,12 @@ class AnalysisService:
             ambience_res = future_ambience.result()
             emotion_res = future_emotion.result()
             transcription_res = future_transcription.result()
-        # Scam analysis (depends on transcription)
-        scam_res = scam_analysis.process(transcription_res)
+        # Scam analysis (depends on transcription, AI voice, and emotion)
+        scam_res = scam_analysis.process(
+            transcription_res,
+            ai_voice_res,
+            emotion_res
+        )
         return {
             "ambience": ambience_res,
             "diarization": diarization_res,

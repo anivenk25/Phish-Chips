@@ -9,8 +9,10 @@ def process(file_path: str,
     """
     # Load Whisper model on CPU to avoid GPU contention
     model = whisper.load_model("medium", device="cpu")
-    result = model.transcribe(file_path)
-    transcript = result.get("text", "")
+    # Use translation task to translate speech to English while transcribing
+    result = model.transcribe(file_path, task="translate")
+    # Extract and clean transcript text
+    transcript = result.get("text", "").strip()
     segments = result.get("segments", [])
     return {
         "transcript": transcript,
