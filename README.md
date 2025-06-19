@@ -27,6 +27,15 @@ Features:
    ```
 4. Open your browser at http://localhost:8000 to access the web UI.
 
+### Hugging Face Authentication (Optional)
+If you plan to use a private or gated Hugging Face model for AI Voice Detection (e.g., `damo/speech_personal_model`), you need to authenticate:
+```bash
+# Set your Hugging Face access token in an environment variable
+export HF_TOKEN=<your_huggingface_access_token>
+# Alternatively, login via the Hugging Face CLI:
+huggingface-cli login
+```
+
 ## Docker
 1. Build the image:
    ```bash

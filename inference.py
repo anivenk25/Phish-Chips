@@ -12,9 +12,34 @@ class Extractor:
         self.threshold = 0.5
         # Load deepfake detection model using specified encoder_model
         model_name = encoder_model
-        self.model = AutoModelForAudioClassification.from_pretrained(model_name, weights_only=True)
-        self.model.to(self.device)
-        self.feature_extractor = AutoFeatureExtractor.from_pretrained(model_name)
+        # Support private Hugging Face repos by passing token via environment
+        import os
+        hf_token = os.getenv('HF_TOKEN') or os.getenv('HUGGINGFACE_TOKEN')
+        try:
+            if hf_token:
+                self.model = AutoModelForAudioClassification.from_pretrained(
+                    model_name,
+                    weights_only=True,
+                    use_auth_token=hf_token,
+                )
+                self.feature_extractor = AutoFeatureExtractor.from_pretrained(
+                    model_name,
+                    use_auth_token=hf_token,
+                )
+            else:
+                self.model = AutoModelForAudioClassification.from_pretrained(
+                    model_name,
+                    weights_only=True,
+                )
+                self.feature_extractor = AutoFeatureExtractor.from_pretrained(model_name)
+            self.model.to(self.device)
+        except Exception as e:
+            raise RuntimeError(
+                f"Failed to load model '{model_name}'. "
+                "Ensure the repo exists and you have access. "
+                "You may need to set the HF_TOKEN or HUGGINGFACE_TOKEN environment variable, "
+                f"original error: {e}"
+            ) from e
 
     def detect_fake(self, file_path: str):
         # Load audio

@@ -9,7 +9,7 @@ def process(file_path: str, chunks: List[ChunkMetadata]) -> List[Dict]:
     """
     Identifies speaker segments using pyannote.
     """
-    device = "cuda" if torch.cuda.is_available() else "cpu"
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # Load Hugging Face token from environment
     hf_token = (
@@ -37,8 +37,8 @@ def process(file_path: str, chunks: List[ChunkMetadata]) -> List[Dict]:
     try:
         pipeline = pipeline_raw.to(device)
     except RuntimeError as e:
-        if "out of memory" in str(e).lower() and device == "cuda":
-            pipeline = pipeline_raw.to("cpu")
+        if "out of memory" in str(e).lower() and device.type == "cuda":
+            pipeline = pipeline_raw.to(torch.device("cpu"))
         else:
             raise
 
