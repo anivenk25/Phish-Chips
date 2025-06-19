@@ -21,6 +21,37 @@ app = FastAPI(title="Audio Analysis Service")
 def startup_event():
     os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
     logger.info(f"Upload directory: {settings.UPLOAD_DIR}")
+    
+class AnalysisService:
+    """
+    Orchestrates analysis tasks with resource-aware sequencing.
+    """
+    def __init__(self, wav_path, metadata):
+        self.wav_path = wav_path
+        self.metadata = metadata
+
+    def run(self):
+        # Sequential GPU-intensive tasks
+        diarization_res = diarization.process(self.wav_path, self.metadata)
+        ai_voice_res = ai_voice.process(self.wav_path, self.metadata)
+        # Concurrent CPU-bound tasks
+        with ThreadPoolExecutor(max_workers=settings.MAX_WORKERS) as cpu_executor:
+            future_ambience = cpu_executor.submit(ambience.process, self.wav_path)
+            future_emotion = cpu_executor.submit(emotion.process, self.wav_path, self.metadata)
+            future_transcription = cpu_executor.submit(transcription.process, self.wav_path, self.metadata)
+            ambience_res = future_ambience.result()
+            emotion_res = future_emotion.result()
+            transcription_res = future_transcription.result()
+        # Scam analysis (depends on transcription)
+        scam_res = scam_analysis.process(transcription_res)
+        return {
+            "ambience": ambience_res,
+            "diarization": diarization_res,
+            "ai_voice": ai_voice_res,
+            "emotion": emotion_res,
+            "transcription": transcription_res,
+            "scam_analysis": scam_res
+        }
 
 @app.post("/analyze", response_model=AnalysisResponse)
 async def analyze_audio(file: UploadFile = File(...), background_tasks: BackgroundTasks = None):
@@ -46,18 +77,15 @@ async def analyze_audio(file: UploadFile = File(...), background_tasks: Backgrou
     logger.info(f"Converted audio: duration={duration:.2f}s, sample_rate={info.samplerate}")
     metadata = split_audio_into_chunks(wav_path, settings.CHUNK_DURATION_SECONDS, settings.CHUNK_OVERLAP_SECONDS)
     logger.info(f"Audio split into {len(metadata)} chunks")
-    transcription_res = transcription.process(wav_path, metadata)
-    with ThreadPoolExecutor(max_workers=settings.MAX_WORKERS) as executor:
-        future_ambience = executor.submit(ambience.process, wav_path)
-        future_diarization = executor.submit(diarization.process, wav_path, metadata)
-        future_ai_voice = executor.submit(ai_voice.process, wav_path, metadata)
-        future_emotion = executor.submit(emotion.process, wav_path, metadata)
-        future_scam = executor.submit(scam_analysis.process, transcription_res)
-        ambience_res = future_ambience.result()
-        diarization_res = future_diarization.result()
-        ai_voice_res = future_ai_voice.result()
-        emotion_res = future_emotion.result()
-        scam_res = future_scam.result()
+    # Run analysis service for resource-aware execution
+    service = AnalysisService(wav_path, metadata)
+    results = service.run()
+    ambience_res = results["ambience"]
+    diarization_res = results["diarization"]
+    ai_voice_res = results["ai_voice"]
+    emotion_res = results["emotion"]
+    transcription_res = results["transcription"]
+    scam_res = results["scam_analysis"]
     background_tasks.add_task(secure_delete, orig_path)
     background_tasks.add_task(secure_delete, wav_path)
     return AnalysisResponse(
