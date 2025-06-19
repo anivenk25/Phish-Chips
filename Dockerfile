@@ -17,7 +17,6 @@ COPY . .
 
 # Install project dependencies using uv
 RUN uv venv && \
-    uv pip install -e . && \
     uv pip install -r requirements.txt &&\
     uv pip install "uvicorn[standard]" fastapi
 
