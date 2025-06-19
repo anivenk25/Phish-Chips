@@ -1,7 +1,7 @@
 import os
 from typing import List, Dict
 from pyannote.audio import Pipeline
-from app.schemas import ChunkMetadata
+from app.models import ChunkMetadata
 import torch
 
 
