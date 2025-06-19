@@ -1,5 +1,6 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException, BackgroundTasks
 from concurrent.futures import ThreadPoolExecutor
+import asyncio
 import os
 import tempfile
 import logging
@@ -8,7 +9,7 @@ import librosa
 import soundfile as sf
 
 from app.config import settings
-from app.models import AnalysisResponse
+from app.models import AnalysisResponse, ChunkMetadata
 from app.utils import secure_delete, split_audio_into_chunks, load_audio_chunk
 from app.processors import ambience, diarization, ai_voice, emotion, transcription, scam_analysis
 
@@ -54,61 +55,68 @@ class AnalysisService:
                 'transcription': transcription_res,
                 'scam_analysis': scam_res
             }
-        # Chunk-level processing: run each analysis module on overlapping chunks, then aggregate.
-        diarization_segments = []
-        all_transcripts = []
-        transcription_segments = []
-        ai_results = []
-        ambience_scores = []
-        ambience_tags = set()
-        emotion_probs_list = []
-
-        # Unique ID counter for transcription segments
-        seg_id_counter = 0
-
-        # Process each chunk
-        for chunk in self.metadata:
-            # Extract chunk audio and write to temp WAV file
+        # Chunk-level processing: run each analysis module on overlapping chunks in parallel, then aggregate.
+        def _process_chunk(chunk):
             data, sr = load_audio_chunk(self.wav_path, chunk.start_time, chunk.end_time)
             tmp_fd, tmp_path = tempfile.mkstemp(suffix=".wav")
             os.close(tmp_fd)
             sf.write(tmp_path, data, sr)
-
             try:
-                # Diarization on chunk
                 diar_res = diarization.process(tmp_path, [chunk])
-                for seg in diar_res:
-                    seg['start'] = round(seg['start'] + chunk.start_time, 2)
-                    seg['end'] = round(seg['end'] + chunk.start_time, 2)
-                    diarization_segments.append(seg)
-
-                # AI voice detection on chunk
                 ai_res = ai_voice.process(tmp_path, [chunk])
-                ai_results.append(ai_res)
-
-                # Ambience detection on chunk
                 amb_res = ambience.process(tmp_path)
-                ambience_scores.append(amb_res.get('composite_score', 0.0))
-                ambience_tags.update(amb_res.get('detected_tags', []))
-
-                # Emotion detection on chunk
                 emo_list = emotion.process(tmp_path, [chunk])
-                if emo_list:
-                    emotion_probs_list.append(emo_list[0].get('emotion_probs', {}))
-
-                # Transcription on chunk
+                emo_probs = emo_list[0].get('emotion_probs', {}) if emo_list else {}
                 trans_res = transcription.process(tmp_path, [chunk])
-                chunk_text = trans_res.get('transcript', '').strip()
-                all_transcripts.append(chunk_text)
-                for seg in trans_res.get('segments', []):
-                    seg['id'] = seg_id_counter
-                    seg_id_counter += 1
-                    seg['start'] = round(seg['start'] + chunk.start_time, 2)
-                    seg['end'] = round(seg['end'] + chunk.start_time, 2)
-                    transcription_segments.append(seg)
+                transcript_text = trans_res.get('transcript', '').strip()
+                trans_segs = trans_res.get('segments', [])
             finally:
-                # Clean up temporary chunk file
                 secure_delete(tmp_path)
+            return {
+                'index': chunk.index,
+                'start': chunk.start_time,
+                'diar': diar_res,
+                'ai': ai_res,
+                'amb': amb_res,
+                'emo': emo_probs,
+                'transcript': transcript_text,
+                'trans_segs': trans_segs
+            }
+
+        with ThreadPoolExecutor(max_workers=settings.MAX_WORKERS) as executor:
+            chunk_results = list(executor.map(_process_chunk, self.metadata))
+
+        chunk_results.sort(key=lambda x: x['index'])
+        diarization_segments = []
+        ai_results = []
+        ambience_scores = []
+        ambience_tags = set()
+        emotion_probs_list = []
+        all_transcripts = []
+        transcription_segments = []
+        seg_id_counter = 0
+
+        # Aggregate per-chunk results
+        for r in chunk_results:
+            offset = r['start']
+            for seg in r['diar']:
+                seg_copy = dict(seg)
+                seg_copy['start'] = round(seg_copy['start'] + offset, 2)
+                seg_copy['end'] = round(seg_copy['end'] + offset, 2)
+                diarization_segments.append(seg_copy)
+            ai_results.append(r['ai'])
+            ambience_scores.append(r['amb'].get('composite_score', 0.0))
+            ambience_tags.update(r['amb'].get('detected_tags', []))
+            if r['emo']:
+                emotion_probs_list.append(r['emo'])
+            all_transcripts.append(r['transcript'])
+            for seg in r['trans_segs']:
+                seg_copy = dict(seg)
+                seg_copy['id'] = seg_id_counter
+                seg_id_counter += 1
+                seg_copy['start'] = round(seg_copy['start'] + offset, 2)
+                seg_copy['end'] = round(seg_copy['end'] + offset, 2)
+                transcription_segments.append(seg_copy)
 
         # Aggregate diarization segments
         diarization_res = diarization_segments
@@ -143,7 +151,7 @@ class AnalysisService:
             emotion_res = [{'top_emotion': top_emotion, 'emotion_probs': merged}]
 
         # Aggregate transcription
-        full_transcript = ' '.join([t for t in all_transcripts if t])
+        full_transcript = ' '.join(t for t in all_transcripts if t)
         transcription_res = {
             'transcript': full_transcript,
             'segments': transcription_segments
@@ -167,35 +175,42 @@ async def analyze_audio(file: UploadFile = File(...), background_tasks: Backgrou
     if not filename.lower().endswith((".wav", ".mp3", ".flac", ".m4a", ".ogg")):
         raise HTTPException(status_code=400, detail="Unsupported file type.")
     logger.info(f"Received file: {filename}")
-    orig_fd, orig_path = tempfile.mkstemp(suffix=os.path.splitext(filename)[1])
+    # Ensure upload directory exists (may not have run startup in TestClient)
+    os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
+    orig_fd, orig_path = tempfile.mkstemp(suffix=os.path.splitext(filename)[1], dir=settings.UPLOAD_DIR)
     os.close(orig_fd)
     content = await file.read()
     with open(orig_path, "wb") as f:
         f.write(content)
     try:
-        y, sr = librosa.load(orig_path, sr=16000, mono=True)
+        # Load at original sample rate to preserve full bandwidth
+        y, sr = librosa.load(orig_path, sr=None, mono=True)
     except Exception:
         secure_delete(orig_path)
         raise HTTPException(status_code=400, detail="Failed to process audio file.")
-    wav_fd, wav_path = tempfile.mkstemp(suffix=".wav")
+    wav_fd, wav_path = tempfile.mkstemp(suffix=".wav", dir=settings.UPLOAD_DIR)
     os.close(wav_fd)
-    sf.write(wav_path, y, 16000)
+    sf.write(wav_path, y, sr)
     info = sf.info(wav_path)
     duration = info.duration
     logger.info(f"Converted audio: duration={duration:.2f}s, sample_rate={info.samplerate}")
     metadata = split_audio_into_chunks(wav_path, settings.CHUNK_DURATION_SECONDS, settings.CHUNK_OVERLAP_SECONDS)
     logger.info(f"Audio split into {len(metadata)} chunks")
-    # Run analysis service for resource-aware execution
+    # Run analysis service in a thread to avoid blocking the event loop
     service = AnalysisService(wav_path, metadata)
-    results = service.run()
+    loop = asyncio.get_running_loop()
+    try:
+        results = await loop.run_in_executor(None, service.run)
+    finally:
+        # Always schedule cleanup of temp files
+        background_tasks.add_task(secure_delete, orig_path)
+        background_tasks.add_task(secure_delete, wav_path)
     ambience_res = results["ambience"]
     diarization_res = results["diarization"]
     ai_voice_res = results["ai_voice"]
     emotion_res = results["emotion"]
     transcription_res = results["transcription"]
     scam_res = results["scam_analysis"]
-    background_tasks.add_task(secure_delete, orig_path)
-    background_tasks.add_task(secure_delete, wav_path)
     return AnalysisResponse(
         ambience=ambience_res,
         diarization=diarization_res,

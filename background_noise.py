@@ -32,9 +32,8 @@ class OfficeAmbienceDetector:
         clipwise_output, _ = self.model.inference(audio)
         clipwise_output = clipwise_output[0]  # Remove batch dim
         
-        # Load class labels
-        with open('audio_class_labels.txt', 'r') as f:
-            classes = [line.strip() for line in f.readlines()]
+        # Get class labels from PANNs model config
+        classes = self.model.labels
         
         # Analyze results
         detections = []

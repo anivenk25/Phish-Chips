@@ -32,9 +32,8 @@ class OfficeAmbienceDetector:
         # Remove batch dim
         scores = clipwise_output[0]
 
-        # Load class labels
-        with open('audio_class_labels.txt', 'r') as f:
-            classes = [line.strip() for line in f]
+        # Get class labels from PANNs model config
+        classes = self.model.labels
 
         # Compute composite score and detect tags
         office_score = 0.0

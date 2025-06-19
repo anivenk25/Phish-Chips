@@ -10,8 +10,8 @@ class Extractor:
         # Use GPU if specified
         self.device = torch.device("cuda" if use_gpu else "cpu")
         self.threshold = 0.5
-        # Load deepfake detection model
-        model_name = "as1605/Deepfake-audio-detection-V2"
+        # Load deepfake detection model using specified encoder_model
+        model_name = encoder_model
         self.model = AutoModelForAudioClassification.from_pretrained(model_name, weights_only=True)
         self.model.to(self.device)
         self.feature_extractor = AutoFeatureExtractor.from_pretrained(model_name)
