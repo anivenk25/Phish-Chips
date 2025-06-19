@@ -9,6 +9,7 @@ torchaudio
 transformers
 pyannote.audio
 panns-inference
-whisper
+openai
+openai-whisper
 pandas
 numpy

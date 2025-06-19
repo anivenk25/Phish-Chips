@@ -2,7 +2,7 @@
 FROM python:3.9-slim
 
 # Install uv and required system deps
-RUN apt-get update && apt-get install -y --no-install-recommends curl wget build-essential \
+RUN apt-get update && apt-get install -y --no-install-recommends curl wget build-essential ffmpeg libsndfile1 \
     && curl -LsSf https://astral.sh/uv/install.sh | sh \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
