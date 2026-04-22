@@ -1,0 +1,65 @@
+{
+  "file_name": "recording_1719838861_chunk.wav",
+  "file_path": "/app/recordings/recording_1719838861_chunk.wav",
+  "processing_time": 14.23,
+  "timestamp": "2025-06-20 09:01:01",
+  "scam": true,
+  "confidence_score": 0.85,
+  "reasoning": "Voice cloning detected with moderate confidence. Caller claims to be from the bank but background noise is inconsistent with an office environment -- detected traffic noise and street sounds rather than expected keyboard typing or office ambience. Emotional manipulation pattern observed: caller maintains a calm, controlled tone while using urgent language designed to induce fear in the recipient. Transcript contains multiple scam keywords: 'suspended', 'verify', 'immediately'. Speaker diarization shows two speakers with asymmetric emotional profiles suggesting deliberate pressure tactics.",
+  "is_cloned": false,
+  "clone_confidence": 0.34,
+  "noise": {
+    "is_office": false,
+    "confidence": 0.78,
+    "composite_score": 0.22,
+    "detected_tags": [
+      {"tag": "Speech", "score": 0.91},
+      {"tag": "Traffic noise, roadway noise", "score": 0.45},
+      {"tag": "Vehicle", "score": 0.32}
+    ],
+    "strong_signal": false
+  },
+  "diarization": [
+    {
+      "speaker": "SPEAKER_00",
+      "start": 0.0,
+      "end": 5.23,
+      "duration": 5.23
+    },
+    {
+      "speaker": "SPEAKER_01",
+      "start": 5.23,
+      "end": 10.01,
+      "duration": 4.78
+    }
+  ],
+  "emotions": [
+    {
+      "top_emotion": "neutral",
+      "scores": {
+        "angry": 0.02,
+        "calm": 0.11,
+        "disgust": 0.01,
+        "fearful": 0.03,
+        "happy": 0.01,
+        "neutral": 0.78,
+        "sad": 0.03,
+        "surprised": 0.01
+      }
+    },
+    {
+      "top_emotion": "fearful",
+      "scores": {
+        "angry": 0.05,
+        "calm": 0.04,
+        "disgust": 0.02,
+        "fearful": 0.65,
+        "happy": 0.01,
+        "neutral": 0.08,
+        "sad": 0.12,
+        "surprised": 0.03
+      }
+    }
+  ],
+  "transcript": "This is your bank calling about suspicious activity on your account. You need to verify your identity immediately or your account will be suspended. Please provide your account number and the OTP that was just sent to your registered mobile number."
+}

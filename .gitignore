@@ -21,7 +21,13 @@ npm-debug.log*
 build/
 .flutter-plugins
 .flutter-plugins-dependencies
+.metadata
 *.iml
+.gradle/
+local.properties
+gradlew
+gradlew.bat
+Procfile
 
 # IDE
 .idea/
@@ -33,5 +39,12 @@ build/
 .env
 .env.local
 
+# Linters/caches
+.ruff_cache/
+
 # Processed files
 backend/processed_files.txt
+
+# Runtime directories
+recordings/
+results/
