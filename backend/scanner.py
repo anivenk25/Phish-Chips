@@ -175,17 +175,8 @@ class VoIPScamScanner:
             )
 
             print("🔍 Running background noise analysis (CPU)...")
-            # TEMPORARY: Skip background noise to avoid TensorFlow GPU conflicts
-            print(
-                "⚠️ Background noise analysis temporarily disabled to prevent GPU conflicts"
-            )
-            noise_res = {
-                "is_office": True,
-                "confidence": 0.5,
-                "detected_tags": [],
-                "composite_score": 0.5,
-                "strong_signal": False,
-            }
+            noise_detector = self.load_noise_detector()
+            noise_res = noise_detector.detect_office(wav_path)
             print(f"🔊 Noise analysis complete")
 
             print("🔍 Running speaker diarization (CPU)...")

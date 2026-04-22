@@ -196,7 +196,7 @@ The system runs 6 large models on a single GPU by loading them in sequential bat
 - **Per-speaker emotion profiling**: Detects asymmetric manipulation (scammer calm, victim fearful)
 - **Background environment authentication**: YAMNet verifies if caller's claimed location matches actual audio
 - **LLM as evidence synthesizer**: Hermes 3 reasons over all model outputs rather than being the primary detector
-- **Privacy-first**: All processing local, no external API calls, audio deleted after analysis
+- **Privacy-first**: All inference runs locally, no audio sent to external APIs, source audio deleted after analysis
 
 ## References
 

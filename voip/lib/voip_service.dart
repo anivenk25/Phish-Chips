@@ -2,6 +2,7 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:record/record.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:http/http.dart' as http;
 import 'dart:io';
 import 'dart:async';
 
@@ -24,6 +25,7 @@ class VoIPService {
   String? _currentRecordingPath;
   
   // Configuration
+  String? _serverUrl;
   final Map<String, dynamic> _iceServers = {
     'iceServers': [
       {'urls': 'stun:stun.l.google.com:19302'},
@@ -47,6 +49,7 @@ class VoIPService {
     required String userId,
   }) async {
     try {
+      _serverUrl = serverUrl;
       // Connect to signaling server
       _socket = IO.io(serverUrl, <String, dynamic>{
         'transports': ['websocket'],
@@ -323,7 +326,7 @@ class VoIPService {
     }
   }
 
-  // Stop recording the call
+  // Stop recording and upload to signaling server for scam analysis
   Future<void> stopRecording() async {
     if (!_isRecording) return;
     
@@ -336,15 +339,51 @@ class VoIPService {
         if (await file.exists()) {
           final fileSizeBytes = await file.length();
           final fileSizeMB = (fileSizeBytes / (1024 * 1024)).toStringAsFixed(2);
-          print('✅ Recording saved locally: $_currentRecordingPath');
-          print('📊 File size: ${fileSizeMB}MB');
-          print('🔍 You can find your recordings in the VoIP_Recordings folder');
+          print('Recording saved locally: $_currentRecordingPath (${fileSizeMB}MB)');
+          
+          // Upload to signaling server for scam analysis
+          await _uploadRecording(file);
         }
       }
-      
-      print('Recording stopped and saved locally');
     } catch (e) {
       print('Failed to stop recording: $e');
+    }
+  }
+
+  // Upload recording to signaling server for AI scam analysis
+  Future<void> _uploadRecording(File file) async {
+    if (_serverUrl == null) {
+      print('No server URL configured, skipping upload');
+      return;
+    }
+
+    try {
+      final uploadUrl = Uri.parse('$_serverUrl/upload-recording');
+      final request = http.MultipartRequest('POST', uploadUrl);
+
+      request.files.add(
+        await http.MultipartFile.fromPath('recording', file.path),
+      );
+      request.fields['timestamp'] = DateTime.now().toIso8601String();
+      request.fields['type'] = 'call_recording';
+      request.fields['analysis_priority'] = 'high';
+
+      print('Uploading recording to $uploadUrl ...');
+      final response = await request.send().timeout(
+        const Duration(seconds: 30),
+      );
+
+      if (response.statusCode == 200) {
+        print('Recording uploaded for scam analysis');
+        // Delete local file after successful upload
+        await file.delete();
+        print('Local recording deleted after upload');
+      } else {
+        print('Upload failed with status ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Failed to upload recording (will retry later): $e');
+      // Recording is kept locally if upload fails
     }
   }
 

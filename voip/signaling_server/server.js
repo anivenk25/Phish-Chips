@@ -266,16 +266,6 @@ app.get('/users', (req, res) => {
 });
 
 // Health check
-app.get('/', (req, res) => {
-  res.json({ 
-    message: 'VoIP Signaling Server',
-    status: 'Running',
-    connectedUsers: connectedUsers.size,
-    uptime: process.uptime(),
-    version: '1.0.0'
-  });
-});
-
 app.get('/health', (req, res) => {
   res.json({ status: 'OK', connectedUsers: connectedUsers.size });
 });
