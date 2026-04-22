@@ -1,65 +1,312 @@
-{
-  "file_name": "recording_1719838861_chunk.wav",
-  "file_path": "/app/recordings/recording_1719838861_chunk.wav",
-  "processing_time": 14.23,
-  "timestamp": "2025-06-20 09:01:01",
-  "scam": true,
-  "confidence_score": 0.85,
-  "reasoning": "Voice cloning detected with moderate confidence. Caller claims to be from the bank but background noise is inconsistent with an office environment -- detected traffic noise and street sounds rather than expected keyboard typing or office ambience. Emotional manipulation pattern observed: caller maintains a calm, controlled tone while using urgent language designed to induce fear in the recipient. Transcript contains multiple scam keywords: 'suspended', 'verify', 'immediately'. Speaker diarization shows two speakers with asymmetric emotional profiles suggesting deliberate pressure tactics.",
-  "is_cloned": false,
-  "clone_confidence": 0.34,
-  "noise": {
-    "is_office": false,
-    "confidence": 0.78,
-    "composite_score": 0.22,
-    "detected_tags": [
-      {"tag": "Speech", "score": 0.91},
-      {"tag": "Traffic noise, roadway noise", "score": 0.45},
-      {"tag": "Vehicle", "score": 0.32}
+[
+  {
+    "_scenario": "SCAM: Bank impersonation with urgency tactics and fake office background",
+    "file_name": "recording_1719838861_chunk.wav",
+    "file_path": "/app/recordings/recording_1719838861_chunk.wav",
+    "processing_time": 14.23,
+    "timestamp": "2025-06-20 09:01:01",
+    "scam": true,
+    "confidence_score": 0.85,
+    "reasoning": "Caller claims to be from the bank but background noise is inconsistent with an office environment -- detected traffic noise and street sounds rather than expected keyboard typing or office ambience. Emotional manipulation pattern observed: caller maintains a calm, controlled tone while using urgent language designed to induce fear in the recipient. Transcript contains multiple scam keywords: 'suspended', 'verify', 'immediately'. Speaker diarization shows two speakers with asymmetric emotional profiles suggesting deliberate pressure tactics.",
+    "is_cloned": false,
+    "clone_confidence": 0.34,
+    "noise": {
+      "is_office": false,
+      "confidence": 0.22,
+      "composite_score": 0.22,
+      "detected_tags": [
+        {"tag": "Speech", "score": 0.91},
+        {"tag": "Traffic noise, roadway noise", "score": 0.45},
+        {"tag": "Vehicle", "score": 0.32}
+      ],
+      "strong_signal": false
+    },
+    "diarization": [
+      {"speaker": "SPEAKER_00", "start": 0.0, "end": 5.23, "duration": 5.23},
+      {"speaker": "SPEAKER_01", "start": 5.23, "end": 10.01, "duration": 4.78}
     ],
-    "strong_signal": false
+    "emotions": [
+      {
+        "top_emotion": "neutral",
+        "scores": {"angry": 0.02, "calm": 0.11, "disgust": 0.01, "fearful": 0.03, "happy": 0.01, "neutral": 0.78, "sad": 0.03, "surprised": 0.01}
+      },
+      {
+        "top_emotion": "fearful",
+        "scores": {"angry": 0.05, "calm": 0.04, "disgust": 0.02, "fearful": 0.65, "happy": 0.01, "neutral": 0.08, "sad": 0.12, "surprised": 0.03}
+      }
+    ],
+    "transcript": "This is your bank calling about suspicious activity on your account. You need to verify your identity immediately or your account will be suspended. Please provide your account number and the OTP that was just sent to your registered mobile number."
   },
-  "diarization": [
-    {
-      "speaker": "SPEAKER_00",
-      "start": 0.0,
-      "end": 5.23,
-      "duration": 5.23
+
+  {
+    "_scenario": "SCAM: AI-cloned voice (deepfake) impersonating a family member",
+    "file_name": "recording_1719842200_chunk.wav",
+    "file_path": "/app/recordings/recording_1719842200_chunk.wav",
+    "processing_time": 12.87,
+    "timestamp": "2025-06-20 10:16:40",
+    "scam": true,
+    "confidence_score": 0.92,
+    "reasoning": "High-confidence deepfake voice detected (0.89). The audio exhibits spectral artifacts consistent with AI voice synthesis. Single speaker call with no background office environment detected. Transcript shows a classic grandparent scam pattern: fabricated emergency, emotional pressure, and an urgent request for money transfer. The caller's voice shows unusually flat emotion (calm throughout) despite describing an emergency, which is inconsistent with genuine distress.",
+    "is_cloned": true,
+    "clone_confidence": 0.89,
+    "noise": {
+      "is_office": false,
+      "confidence": 0.15,
+      "composite_score": 0.15,
+      "detected_tags": [
+        {"tag": "Speech", "score": 0.88},
+        {"tag": "Silence", "score": 0.42}
+      ],
+      "strong_signal": false
     },
-    {
-      "speaker": "SPEAKER_01",
-      "start": 5.23,
-      "end": 10.01,
-      "duration": 4.78
-    }
-  ],
-  "emotions": [
-    {
-      "top_emotion": "neutral",
-      "scores": {
-        "angry": 0.02,
-        "calm": 0.11,
-        "disgust": 0.01,
-        "fearful": 0.03,
-        "happy": 0.01,
-        "neutral": 0.78,
-        "sad": 0.03,
-        "surprised": 0.01
+    "diarization": [
+      {"speaker": "SPEAKER_00", "start": 0.0, "end": 9.87, "duration": 9.87}
+    ],
+    "emotions": [
+      {
+        "top_emotion": "calm",
+        "scores": {"angry": 0.01, "calm": 0.72, "disgust": 0.00, "fearful": 0.05, "happy": 0.02, "neutral": 0.16, "sad": 0.03, "surprised": 0.01}
       }
+    ],
+    "transcript": "Grandma it's me I'm in trouble. I got into a car accident and I need bail money right now. Please don't tell mom and dad. Can you wire two thousand dollars to this account? I'll pay you back I promise. Please hurry they're going to keep me here."
+  },
+
+  {
+    "_scenario": "CLEAN: Legitimate customer service call from actual bank office",
+    "file_name": "recording_1719845000_chunk.wav",
+    "file_path": "/app/recordings/recording_1719845000_chunk.wav",
+    "processing_time": 13.55,
+    "timestamp": "2025-06-20 11:03:20",
+    "scam": false,
+    "confidence_score": 0.12,
+    "reasoning": "Background noise is consistent with a genuine office environment -- typing, keyboard clicks, and ambient office sounds detected with high confidence. Two speakers with natural conversational flow and appropriate emotional tones. No scam keywords or urgency tactics detected in the transcript. The caller provides information rather than requesting sensitive data. Voice shows no deepfake artifacts.",
+    "is_cloned": false,
+    "clone_confidence": 0.08,
+    "noise": {
+      "is_office": true,
+      "confidence": 0.87,
+      "composite_score": 0.87,
+      "detected_tags": [
+        {"tag": "Speech", "score": 0.90},
+        {"tag": "Computer keyboard", "score": 0.62},
+        {"tag": "Typing", "score": 0.58},
+        {"tag": "Telephone", "score": 0.35},
+        {"tag": "Air conditioning", "score": 0.28}
+      ],
+      "strong_signal": true
     },
-    {
-      "top_emotion": "fearful",
-      "scores": {
-        "angry": 0.05,
-        "calm": 0.04,
-        "disgust": 0.02,
-        "fearful": 0.65,
-        "happy": 0.01,
-        "neutral": 0.08,
-        "sad": 0.12,
-        "surprised": 0.03
+    "diarization": [
+      {"speaker": "SPEAKER_00", "start": 0.0, "end": 3.45, "duration": 3.45},
+      {"speaker": "SPEAKER_01", "start": 3.50, "end": 6.82, "duration": 3.32},
+      {"speaker": "SPEAKER_00", "start": 6.90, "end": 10.00, "duration": 3.10}
+    ],
+    "emotions": [
+      {
+        "top_emotion": "neutral",
+        "scores": {"angry": 0.01, "calm": 0.18, "disgust": 0.00, "fearful": 0.01, "happy": 0.04, "neutral": 0.72, "sad": 0.02, "surprised": 0.02}
+      },
+      {
+        "top_emotion": "calm",
+        "scores": {"angry": 0.00, "calm": 0.65, "disgust": 0.00, "fearful": 0.01, "happy": 0.08, "neutral": 0.22, "sad": 0.02, "surprised": 0.02}
+      },
+      {
+        "top_emotion": "neutral",
+        "scores": {"angry": 0.01, "calm": 0.20, "disgust": 0.01, "fearful": 0.02, "happy": 0.03, "neutral": 0.68, "sad": 0.03, "surprised": 0.02}
       }
-    }
-  ],
-  "transcript": "This is your bank calling about suspicious activity on your account. You need to verify your identity immediately or your account will be suspended. Please provide your account number and the OTP that was just sent to your registered mobile number."
-}
+    ],
+    "transcript": "Good morning, this is Rajesh from State Bank customer service. I'm calling to let you know that your new debit card has been dispatched and should arrive within five to seven working days. You don't need to do anything, it will be delivered to your registered address. Is there anything else I can help you with today?"
+  },
+
+  {
+    "_scenario": "SCAM: Tech support scam with multiple speakers (conference intimidation)",
+    "file_name": "recording_1719848500_chunk.wav",
+    "file_path": "/app/recordings/recording_1719848500_chunk.wav",
+    "processing_time": 15.91,
+    "timestamp": "2025-06-20 12:01:40",
+    "scam": true,
+    "confidence_score": 0.78,
+    "reasoning": "Three speakers detected in a short segment, suggesting a conference-call intimidation tactic common in tech support scams. Background environment does not match a legitimate call center. Transcript contains classic tech support scam indicators: claims of computer compromise, urgency, and request to install remote access software. Emotional analysis shows escalating pressure: SPEAKER_00 is angry/authoritative, SPEAKER_01 reinforces urgency, creating a two-against-one dynamic designed to overwhelm the victim.",
+    "is_cloned": false,
+    "clone_confidence": 0.21,
+    "noise": {
+      "is_office": false,
+      "confidence": 0.31,
+      "composite_score": 0.31,
+      "detected_tags": [
+        {"tag": "Speech", "score": 0.93},
+        {"tag": "Music", "score": 0.18},
+        {"tag": "Domestic sounds", "score": 0.15}
+      ],
+      "strong_signal": false
+    },
+    "diarization": [
+      {"speaker": "SPEAKER_00", "start": 0.0, "end": 3.10, "duration": 3.10},
+      {"speaker": "SPEAKER_01", "start": 3.15, "end": 5.80, "duration": 2.65},
+      {"speaker": "SPEAKER_02", "start": 5.85, "end": 7.20, "duration": 1.35},
+      {"speaker": "SPEAKER_00", "start": 7.25, "end": 10.00, "duration": 2.75}
+    ],
+    "emotions": [
+      {
+        "top_emotion": "angry",
+        "scores": {"angry": 0.58, "calm": 0.05, "disgust": 0.08, "fearful": 0.03, "happy": 0.01, "neutral": 0.18, "sad": 0.04, "surprised": 0.03}
+      },
+      {
+        "top_emotion": "fearful",
+        "scores": {"angry": 0.10, "calm": 0.03, "disgust": 0.02, "fearful": 0.52, "happy": 0.01, "neutral": 0.12, "sad": 0.15, "surprised": 0.05}
+      },
+      {
+        "top_emotion": "neutral",
+        "scores": {"angry": 0.04, "calm": 0.22, "disgust": 0.01, "fearful": 0.08, "happy": 0.02, "neutral": 0.55, "sad": 0.05, "surprised": 0.03}
+      },
+      {
+        "top_emotion": "angry",
+        "scores": {"angry": 0.62, "calm": 0.04, "disgust": 0.06, "fearful": 0.02, "happy": 0.01, "neutral": 0.15, "sad": 0.06, "surprised": 0.04}
+      }
+    ],
+    "transcript": "Sir your computer has been compromised. We are from Microsoft security team. My colleague here will confirm this is very serious. Yes sir this is critical, hackers have accessed your system. You need to install TeamViewer right now so we can remove the virus. If you don't act now you will lose all your data and your bank details will be stolen."
+  },
+
+  {
+    "_scenario": "CLEAN: Casual conversation between friends",
+    "file_name": "recording_1719851000_chunk.wav",
+    "file_path": "/app/recordings/recording_1719851000_chunk.wav",
+    "processing_time": 11.42,
+    "timestamp": "2025-06-20 12:43:20",
+    "scam": false,
+    "confidence_score": 0.05,
+    "reasoning": "Natural two-speaker conversation with no scam indicators. Both speakers exhibit positive or neutral emotions consistent with a friendly call. No urgency language, no requests for personal information, no financial topics. Background noise is minimal and consistent with a quiet indoor environment. No deepfake artifacts detected.",
+    "is_cloned": false,
+    "clone_confidence": 0.04,
+    "noise": {
+      "is_office": false,
+      "confidence": 0.12,
+      "composite_score": 0.12,
+      "detected_tags": [
+        {"tag": "Speech", "score": 0.85},
+        {"tag": "Silence", "score": 0.38}
+      ],
+      "strong_signal": false
+    },
+    "diarization": [
+      {"speaker": "SPEAKER_00", "start": 0.0, "end": 4.12, "duration": 4.12},
+      {"speaker": "SPEAKER_01", "start": 4.20, "end": 7.55, "duration": 3.35},
+      {"speaker": "SPEAKER_00", "start": 7.60, "end": 10.00, "duration": 2.40}
+    ],
+    "emotions": [
+      {
+        "top_emotion": "happy",
+        "scores": {"angry": 0.01, "calm": 0.12, "disgust": 0.00, "fearful": 0.01, "happy": 0.62, "neutral": 0.20, "sad": 0.02, "surprised": 0.02}
+      },
+      {
+        "top_emotion": "happy",
+        "scores": {"angry": 0.01, "calm": 0.15, "disgust": 0.00, "fearful": 0.01, "happy": 0.55, "neutral": 0.24, "sad": 0.02, "surprised": 0.02}
+      },
+      {
+        "top_emotion": "neutral",
+        "scores": {"angry": 0.02, "calm": 0.18, "disgust": 0.01, "fearful": 0.02, "happy": 0.15, "neutral": 0.58, "sad": 0.02, "surprised": 0.02}
+      }
+    ],
+    "transcript": "Hey what's up man. Are you coming to the match tomorrow? Yeah I'll be there. Ravi said he's bringing snacks. Awesome let's meet at the gate around four. Sounds good, see you then."
+  },
+
+  {
+    "_scenario": "SCAM: Government/police impersonation with arrest threats (Hindi translated to English)",
+    "file_name": "recording_1719854000_chunk.wav",
+    "file_path": "/app/recordings/recording_1719854000_chunk.wav",
+    "processing_time": 13.78,
+    "timestamp": "2025-06-20 13:33:20",
+    "scam": true,
+    "confidence_score": 0.91,
+    "reasoning": "Transcript (auto-translated from Hindi) contains severe scam indicators: impersonation of law enforcement, threats of arrest, demand for immediate payment to avoid legal action. This matches the 'digital arrest' scam pattern prevalent in India. Single speaker delivering a scripted monologue with an aggressive emotional tone designed to create panic. Background is quiet with no sounds of an actual police station or government office. The language patterns show rehearsed delivery rather than genuine official communication.",
+    "is_cloned": false,
+    "clone_confidence": 0.28,
+    "noise": {
+      "is_office": false,
+      "confidence": 0.18,
+      "composite_score": 0.18,
+      "detected_tags": [
+        {"tag": "Speech", "score": 0.92},
+        {"tag": "Silence", "score": 0.30}
+      ],
+      "strong_signal": false
+    },
+    "diarization": [
+      {"speaker": "SPEAKER_00", "start": 0.0, "end": 10.00, "duration": 10.00}
+    ],
+    "emotions": [
+      {
+        "top_emotion": "angry",
+        "scores": {"angry": 0.71, "calm": 0.03, "disgust": 0.06, "fearful": 0.02, "happy": 0.00, "neutral": 0.10, "sad": 0.04, "surprised": 0.04}
+      }
+    ],
+    "transcript": "This is the cyber crime department calling. Your Aadhaar number has been used in money laundering activities. An FIR has been registered against you and a warrant for your arrest will be issued within the next two hours. You must transfer the security deposit of fifty thousand rupees immediately to clear your name or the police will come to your house. Do not disconnect this call."
+  },
+
+  {
+    "_scenario": "SCAM: Prize/lottery scam with fake excitement",
+    "file_name": "recording_1719857000_chunk.wav",
+    "file_path": "/app/recordings/recording_1719857000_chunk.wav",
+    "processing_time": 12.05,
+    "timestamp": "2025-06-20 14:23:20",
+    "scam": true,
+    "confidence_score": 0.82,
+    "reasoning": "Classic lottery/prize scam detected. Transcript contains high-density scam keywords: 'congratulations', 'winner', 'prize', 'processing fee'. The caller exhibits artificially elevated happy/excited emotion which is inconsistent with professional communication. Single speaker with scripted delivery. No office background detected. The request for a 'processing fee' to claim a prize is a textbook advance-fee fraud indicator.",
+    "is_cloned": false,
+    "clone_confidence": 0.15,
+    "noise": {
+      "is_office": false,
+      "confidence": 0.20,
+      "composite_score": 0.20,
+      "detected_tags": [
+        {"tag": "Speech", "score": 0.87},
+        {"tag": "Music", "score": 0.22}
+      ],
+      "strong_signal": false
+    },
+    "diarization": [
+      {"speaker": "SPEAKER_00", "start": 0.0, "end": 10.00, "duration": 10.00}
+    ],
+    "emotions": [
+      {
+        "top_emotion": "happy",
+        "scores": {"angry": 0.01, "calm": 0.04, "disgust": 0.00, "fearful": 0.01, "happy": 0.78, "neutral": 0.10, "sad": 0.01, "surprised": 0.05}
+      }
+    ],
+    "transcript": "Congratulations! You have been selected as the lucky winner of our annual customer appreciation draw. You have won a cash prize of five lakh rupees. To claim your prize please pay a small processing fee of two thousand rupees. This offer expires today. Please share your bank details so we can process the payment immediately."
+  },
+
+  {
+    "_scenario": "CLEAN: Delivery notification from e-commerce company",
+    "file_name": "recording_1719860000_chunk.wav",
+    "file_path": "/app/recordings/recording_1719860000_chunk.wav",
+    "processing_time": 10.88,
+    "timestamp": "2025-06-20 15:13:20",
+    "scam": false,
+    "confidence_score": 0.08,
+    "reasoning": "Legitimate automated delivery notification. Background noise consistent with a call center environment with keyboard typing and office ambience. Single speaker delivering a brief informational message with no requests for personal information, no urgency, and no financial demands. The transcript is purely informational, confirming an existing order. Calm, neutral tone throughout.",
+    "is_cloned": false,
+    "clone_confidence": 0.11,
+    "noise": {
+      "is_office": true,
+      "confidence": 0.75,
+      "composite_score": 0.75,
+      "detected_tags": [
+        {"tag": "Speech", "score": 0.82},
+        {"tag": "Typing", "score": 0.45},
+        {"tag": "Telephone", "score": 0.38},
+        {"tag": "Air conditioning", "score": 0.25}
+      ],
+      "strong_signal": true
+    },
+    "diarization": [
+      {"speaker": "SPEAKER_00", "start": 0.0, "end": 8.50, "duration": 8.50}
+    ],
+    "emotions": [
+      {
+        "top_emotion": "calm",
+        "scores": {"angry": 0.00, "calm": 0.68, "disgust": 0.00, "fearful": 0.01, "happy": 0.05, "neutral": 0.23, "sad": 0.01, "surprised": 0.02}
+      }
+    ],
+    "transcript": "Hello this is a call from Flipkart regarding your recent order. Your package containing a wireless mouse is out for delivery and will reach your address by six PM today. The delivery person will call you before arriving. Thank you for shopping with us."
+  }
+]
