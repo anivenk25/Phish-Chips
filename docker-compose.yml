@@ -1,0 +1,36 @@
+version: "3.8"
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    image: voip-backend:latest
+    runtime: nvidia
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    ports:
+      - "8000:8000"
+    environment:
+      - RECORDINGS_DIR=/recordings
+      - RESULTS_DIR=/results
+    volumes:
+      - ./recordings:/recordings
+      - ./results:/results
+
+  signaling_server:
+    build:
+      context: ./voip/signaling_server
+      dockerfile: Dockerfile
+    image: voip-signaling-server:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - RAILWAY_VOLUME_MOUNT_PATH=/recordings
+      - SCAM_API_URL=http://backend:8000
+    volumes:
+      - ./recordings:/recordings
+    depends_on:
+      - backend
