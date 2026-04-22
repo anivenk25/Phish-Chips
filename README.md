@@ -198,16 +198,6 @@ The system runs 6 large models on a single GPU by loading them in sequential bat
 - **LLM as evidence synthesizer**: Hermes 3 reasons over all model outputs rather than being the primary detector
 - **Privacy-first**: All processing local, no external API calls, audio deleted after analysis
 
-## Team
-
-**Phish 'n Chips** -- NIT Rourkela
-
-- Anirudh Venkateswaran (B.Tech CSE)
-- Pabitra Kumar Bebartta (B.Tech Chemical Engineering)
-- S. Antony Micheal Peo Shane (Metallurgy & Materials)
-- Biswajeet Kar (Electronics & Communication)
-- Pankaj Pratihar (Metallurgy & Materials)
-
 ## References
 
 1. `as1605/Deepfake-audio-detection-V2` -- HuggingFace
